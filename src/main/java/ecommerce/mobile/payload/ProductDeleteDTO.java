@@ -1,8 +1,10 @@
 package ecommerce.mobile.payload;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-
+@Schema(description = "ProductDeleteDTO Model Information")
 public class ProductDeleteDTO {
+	@Schema(description = "Id Product")
 	@NotNull
 	Integer productId;
 

@@ -7,11 +7,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ecommerce.mobile.constant.SortField;
 import ecommerce.mobile.entity.Company;
@@ -27,10 +31,12 @@ import ecommerce.mobile.repository.ImageRepository;
 import ecommerce.mobile.repository.LogoRepository;
 import ecommerce.mobile.service.CloudinaryService;
 import ecommerce.mobile.service.CompanyService;
+import ecommerce.mobile.service.LoggerService;
 import ecommerce.mobile.utils.MapperUtils;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class CompanyServiceImp implements CompanyService {
@@ -40,16 +46,22 @@ public class CompanyServiceImp implements CompanyService {
 	private CloudinaryService cloudinaryService;
 	@PersistenceContext
 	private EntityManager entityManager;
+	private LoggerService loggerService;
 	private final String path = "mobile/Companies";
+	private static final Logger logger = LoggerFactory.getLogger(UserServiceImp.class);
+	private final ObjectMapper objectMapper;
 
 	public CompanyServiceImp(CompanyRepository companyRepository, ImageRepository imageRepository,
-			LogoRepository logoRepository, CloudinaryService cloudinaryService, EntityManager entityManager) {
+			LogoRepository logoRepository, CloudinaryService cloudinaryService, EntityManager entityManager,
+			LoggerService loggerService, ObjectMapper objectMapper) {
 		super();
 		this.companyRepository = companyRepository;
 		this.imageRepository = imageRepository;
 		this.logoRepository = logoRepository;
 		this.cloudinaryService = cloudinaryService;
 		this.entityManager = entityManager;
+		this.loggerService = loggerService;
+		this.objectMapper = objectMapper;
 	}
 
 	@Override
@@ -97,49 +109,29 @@ public class CompanyServiceImp implements CompanyService {
 	}
 
 	@Override
-	public CompanyDTO createCompany(CompanyCreateDTO cpr) throws IOException {
-		if (companyRepository.existsByName(cpr.getName()))
-			throw new AppGlobalException(HttpStatus.BAD_REQUEST, "Company is existing");
+	public CompanyDTO createCompany(CompanyCreateDTO cpr, HttpServletRequest request) throws IOException {
+		try {
+			if (companyRepository.existsByName(cpr.getName()))
+				throw new AppGlobalException(HttpStatus.BAD_REQUEST, "Company is existing");
+			if (companyRepository.existsByEmail(cpr.getEmail()))
+				throw new AppGlobalException(HttpStatus.BAD_REQUEST, "Email is existing");
+			if (companyRepository.existsByPhone(cpr.getPhone()))
+				throw new AppGlobalException(HttpStatus.BAD_REQUEST, "Phone is existing");
 
-		CompanyDTO temp = MapperUtils.mapToDTO(cpr, CompanyDTO.class);
-		String url = cloudinaryService.uploadImage(cpr.getLogo(), path, "image");
-		String uniqueKey = UUID.randomUUID().toString();
+//			CompanyDTO temp = MapperUtils.mapToDTO(cpr, CompanyDTO.class);
+			String url = cloudinaryService.uploadImage(cpr.getLogo(), path, "image");
+			String uniqueKey = UUID.randomUUID().toString();
 
-		Company company = new Company();
-		company.setName(temp.getName());
-		company.setStatus(cpr.getStatus());
-		company.setKeyCompany(uniqueKey);
-		companyRepository.save(company);
+			Company company = new Company();
+			company.setKeyCompany(uniqueKey);
+			company.setEmail(cpr.getEmail());
+			company.setAddress(cpr.getAddress());
+			company.setName(cpr.getName());
+			company.setPhone(cpr.getPhone());
+			company.setStatus(cpr.getStatus());
+			logger.info(company.getEmail());
+			companyRepository.save(company);
 
-		Logo logo = new Logo();
-		logo.setStatus(1);
-		logo.setCompany(company);
-		logoRepository.save(logo);
-
-		Image image = new Image();
-		image.setImage(url);
-		image.setStatus(1);
-		image.setLogo(logo);
-		image.setCompany(company);
-		imageRepository.save(image);
-
-		CompanyDTO companyDTO = MapperUtils.mapToDTO(company, CompanyDTO.class);
-		companyDTO.setLogo(url);
-
-		return companyDTO;
-	}
-
-	@Override
-	public CompanyDTO updateCompany(CompanyUpdateDTO cpu) throws IOException {
-		Company company = companyRepository.findById(cpu.getId())
-				.orElseThrow(() -> new ResourceNotFoundException("Company", "id", cpu.getId()));
-		if (cpu.getName() != null) {
-			company.setName(cpu.getName());
-		}
-		if (cpu.getLogo() != null) {
-			cloudinaryService.removeImageFromCloudinary(company.getLogo().getLogo().getImage(), path);
-			logoRepository.delete(company.getLogo());
-			String url = cloudinaryService.uploadImage(cpu.getLogo(), path, "image");
 			Logo logo = new Logo();
 			logo.setStatus(1);
 			logo.setCompany(company);
@@ -149,18 +141,63 @@ public class CompanyServiceImp implements CompanyService {
 			image.setImage(url);
 			image.setStatus(1);
 			image.setLogo(logo);
+			image.setCompany(company);
 			imageRepository.save(image);
 
-			company.setLogo(logo);
+			CompanyDTO companyDTO = MapperUtils.mapToDTO(company, CompanyDTO.class);
+			companyDTO.setLogo(url);
+			loggerService.logInfor(request, "Create Invoice", "SUCCESSFULLY", objectMapper.writeValueAsString(cpr));
+			return companyDTO;
+		} catch (Exception e) {
+			loggerService.logError(request, "Create Invoice", "FAILED", objectMapper.writeValueAsString(cpr));
+
+			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
-		if (cpu.getStatus() != null)
-			company.setStatus(cpu.getStatus());
+	}
 
-		companyRepository.save(company);
+	@Override
+	public CompanyDTO updateCompany(CompanyUpdateDTO cpu, HttpServletRequest request) throws IOException {
+		try {
+			Company company = companyRepository.findById(cpu.getId())
+					.orElseThrow(() -> new ResourceNotFoundException("Company", "id", cpu.getId()));
+			if (cpu.getName() != null)
+				company.setName(cpu.getName());
 
-		CompanyDTO companyDto = MapperUtils.mapToDTO(company, CompanyDTO.class);
-		companyDto.setLogo(company.getLogo().getLogo().getImage());
-		return companyDto;
+			if (cpu.getPhone() != null)
+				company.setPhone(cpu.getPhone());
+
+			if (cpu.getEmail() != null)
+				company.setEmail(cpu.getEmail());
+
+			if (cpu.getAddress() != null)
+				company.setAddress(cpu.getAddress());
+
+			if (cpu.getLogo() != null) {
+				cloudinaryService.removeImageFromCloudinary(company.getLogo().getLogo().getImage(), path);
+				String url = cloudinaryService.uploadImage(cpu.getLogo(), path, "image");
+				Logo logo = company.getLogo();
+				logo.setStatus(1);
+				logo.setCompany(company);
+				logo.getLogo().setImage(url);
+				logoRepository.save(logo);
+
+				company.setLogo(logo);
+			}
+			if (cpu.getStatus() != null)
+				company.setStatus(cpu.getStatus());
+			logger.info(company.getId() + "");
+			companyRepository.save(company);
+
+			CompanyDTO companyDto = MapperUtils.mapToDTO(company, CompanyDTO.class);
+			companyDto.setLogo(company.getLogo().getLogo().getImage());
+			loggerService.logInfor(request, "Update Invoice", "SUCCESSFULLY", objectMapper.writeValueAsString(cpu));
+
+			return companyDto;
+		} catch (Exception e) {
+			loggerService.logError(request, "Update Invoice", "FAILED", objectMapper.writeValueAsString(cpu));
+
+			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
 	}
 
 	@Override
@@ -174,19 +211,38 @@ public class CompanyServiceImp implements CompanyService {
 	}
 
 	@Override
-	public void deleteById(Integer companyId) {
-		Company company = companyRepository.findById(companyId)
-				.orElseThrow(() -> new ResourceNotFoundException("Company", "id", companyId));
-		company.getLogo().setStatus(2);
-		company.getLogo().getLogo().setStatus(2);
-		company.setStatus(2);
-		companyRepository.save(company);
+	public void deleteById(Integer companyId, HttpServletRequest request) {
+		try {
+			Company company = companyRepository.findById(companyId)
+					.orElseThrow(() -> new ResourceNotFoundException("Company", "id", companyId));
+			company.getLogo().setStatus(2);
+			company.getLogo().getLogo().setStatus(2);
+			company.setStatus(2);
+			companyRepository.save(company);
+			loggerService.logInfor(request, "Update Invoice", "SUCCESSFULLY",
+					"{\"id\": " + "\"" + companyId + "\"" + "}");
+
+		} catch (Exception e) {
+			loggerService.logError(request, "Update Invoice", "FAILED", "{\"id\": " + "\"" + companyId + "\"" + "}");
+			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+
+		}
 	}
 
 	@Override
 	public CompanyDTO getByName(String name) {
 		Company company = companyRepository.findByName(name)
 				.orElseThrow(() -> new ResourceNotFoundException("Company", "name", name));
+
+		CompanyDTO companyDto = MapperUtils.mapToDTO(company, CompanyDTO.class);
+		companyDto.setLogo(company.getLogo().getLogo().getImage());
+		return companyDto;
+	}
+
+	@Override
+	public CompanyDTO getByKey(String key) {
+		Company company = companyRepository.findByKeyCompany(key)
+				.orElseThrow(() -> new ResourceNotFoundException("Company", "keyCompany", key));
 
 		CompanyDTO companyDto = MapperUtils.mapToDTO(company, CompanyDTO.class);
 		companyDto.setLogo(company.getLogo().getLogo().getImage());

@@ -1,26 +1,31 @@
 package ecommerce.mobile.payload;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-
+@Schema(description = "RegisterDTO Model Information")
 public class RegisterDTO {
+	@Schema(description = "Name User")
 	@NotNull
 	private String name;
-
+	@Schema(description = "Email User")
 	@NotNull
 	private String email;
-
+	@Schema(description = "PasswordUser")
 	@NotNull
 	private String password;
+	@Schema(description = "Gender User (Male or Female)")
 	@NotNull
 	private String gender;
+	@Schema(description = "Phone User")
 	@NotNull
 	private String phone;
-
+	@Schema(description = "Address User")
 	@NotNull
 	private String address;
-
+	@Schema(description = "Role User (ROLE_ADMIN or ROLE_MOD or ROLE_USER or ROLE_GUEST)")
 	@NotNull
 	private String role;
+	@Schema(description = "Key Company")
 	@NotNull
 	private String companyKey;
 

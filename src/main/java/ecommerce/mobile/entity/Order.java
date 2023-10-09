@@ -18,6 +18,10 @@ public class Order extends BaseEntity {
 	private Product product;
 
 	@ManyToOne
+	@JoinColumn(name = "guest_id")
+	private User guest;
+
+	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
 
@@ -27,10 +31,11 @@ public class Order extends BaseEntity {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Order(Invoice invoice, Product product, User user, Integer quantity) {
+	public Order(Invoice invoice, Product product, User guest, User user, Integer quantity) {
 		super();
 		this.invoice = invoice;
 		this.product = product;
+		this.guest = guest;
 		this.user = user;
 		this.quantity = quantity;
 	}
@@ -49,6 +54,14 @@ public class Order extends BaseEntity {
 
 	public void setProduct(Product product) {
 		this.product = product;
+	}
+
+	public User getGuest() {
+		return guest;
+	}
+
+	public void setGuest(User guest) {
+		this.guest = guest;
 	}
 
 	public User getUser() {

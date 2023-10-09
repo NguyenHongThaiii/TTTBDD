@@ -2,15 +2,38 @@ package ecommerce.mobile.payload;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import ecommerce.mobile.annotation.CheckStatus;
+import ecommerce.mobile.constant.RoleField;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotNull;
+
+@Schema(description = "UserUpdateDTO Model Information")
 public class UserUpdateDTO {
+	@Schema(description = "Id User")
+	@NotNull
 	private Integer id;
+	@Schema(description = "Password User")
 	private String password;
+	@Schema(description = "Name User")
 	private String name;
+	@Schema(description = "Role User")
+	@Enumerated(EnumType.STRING)
+	private RoleField role;
+	@Schema(description = "Address User")
 	private String address;
+	@Schema(description = "Gender User (Male or Female)")
 	private String gender;
+	@Schema(description = "Avatar User")
 	private MultipartFile avartar;
+	@Schema(description = "Phone User")
 	private String phone;
+	@Schema(description = "Status User (0,1,2,3)")
+	@CheckStatus(allowedValues = { 0, 1, 2, 3 })
 	private Integer status;
+
+	@Schema(description = "WallpaperUser")
 	private MultipartFile wallpaper;
 
 	public UserUpdateDTO() {
@@ -19,12 +42,13 @@ public class UserUpdateDTO {
 
 	}
 
-	public UserUpdateDTO(Integer id, String password, String name, String address, String gender, MultipartFile avartar,
-			String phone, Integer status, MultipartFile wallpaper) {
+	public UserUpdateDTO(@NotNull Integer id, String password, String name, RoleField role, String address,
+			String gender, MultipartFile avartar, String phone, Integer status, MultipartFile wallpaper) {
 		super();
 		this.id = id;
 		this.password = password;
 		this.name = name;
+		this.role = role;
 		this.address = address;
 		this.gender = gender;
 		this.avartar = avartar;
@@ -55,6 +79,14 @@ public class UserUpdateDTO {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public RoleField getRole() {
+		return role;
+	}
+
+	public void setRole(RoleField role) {
+		this.role = role;
 	}
 
 	public String getAddress() {

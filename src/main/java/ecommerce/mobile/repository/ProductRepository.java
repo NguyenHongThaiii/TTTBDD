@@ -1,5 +1,6 @@
 package ecommerce.mobile.repository;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 	@Transactional
 	@Query
 	default List<Product> findWithFilters(Integer status, String name, Integer priceMin, Integer priceMax, Integer type,
-			String companyName, Pageable pageable, EntityManager entityManager) {
+			String companyName, String createdAt, String updatedAt, Pageable pageable, EntityManager entityManager) {
 
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Product> cq = cb.createQuery(Product.class);
@@ -51,9 +52,19 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 			predicates
 					.add(cb.like(cb.lower(product.get("company").get("name")), "%" + companyName.toLowerCase() + "%"));
 		}
-
-		predicates.add(cb.equal(product.get("status"), status));
-
+		if (status != null) {
+			predicates.add(cb.equal(product.get("status"), status));
+		}
+		if (createdAt != null) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			String createdAtStr = createdAt.formatted(formatter);
+			predicates.add(cb.like(product.get("createdAt"), createdAtStr + "%"));
+		}
+		if (updatedAt != null) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			String createdAtStr = createdAt.formatted(formatter);
+			predicates.add(cb.like(product.get("updatedAt"), createdAtStr + "%"));
+		}
 		if (pageable.getSort() != null) {
 			for (Sort.Order order : pageable.getSort()) {
 

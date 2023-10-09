@@ -3,19 +3,34 @@ package ecommerce.mobile.payload;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+@Schema(description = "UserDTO Model Information")
 public class UserDTO {
+	@Schema(description = "Id User")
 	private int id;
+	@Schema(description = "Email User")
 	private String email;
+	@Schema(description = "Name User")
 	private String name;
+	@Schema(description = "Address User")
 	private String address;
+	@Schema(description = "Phone User")
 	private String phone;
+	@Schema(description = "List Roles User")
 	private List<String> roles = new ArrayList<>();
+	@Schema(description = "Avatar User")
 	private String image;
+	@Schema(description = "Id Company")
 	private Integer companyId;
+	@Schema(description = "Gender User (Male or Female)")
 	private String gender;
+	@Schema(description = "Wallpaper User")
 	private String wallpaper;
+	@Schema(description = "Status User (0,1,2)")
 	private Integer status;
+	@Schema(description = "Created At User")
 	private String createdAt;
+	@Schema(description = "Udpated At User")
 	private String updatedAt;
 
 	public UserDTO() {

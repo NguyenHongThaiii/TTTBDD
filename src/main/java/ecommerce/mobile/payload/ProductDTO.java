@@ -3,17 +3,31 @@ package ecommerce.mobile.payload;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "ProductDTO Model Information")
 public class ProductDTO {
+	@Schema(description = "Id Product")
 	private Integer id;
+	@Schema(description = "Name Product")
 	private String name;
+	@Schema(description = "Price Product")
 	private int price;
+	@Schema(description = "List Iamges Product")
 	private List<String> listImage = new ArrayList<>();
+	@Schema(description = "Desciption Product")
 	private String description;
+	@Schema(description = "Type Product")
 	private Integer type;
-	private Integer companyId;
+	@Schema(description = "Name Company")
+	private String nameCompany;
+	@Schema(description = "Status Product (0,1,2)")
 	private Integer status;
+	@Schema(description = "Created At Product")
 	private String createdAt;
+	@Schema(description = "Updated At Product")
 	private String updatedAt;
+	@Schema(description = "Stock Product")
 	private Integer stock;
 
 	public ProductDTO() {
@@ -21,7 +35,7 @@ public class ProductDTO {
 	}
 
 	public ProductDTO(Integer id, String name, int price, List<String> listImage, String description, Integer type,
-			Integer companyId, Integer status, String createdAt, String updatedAt, Integer stock) {
+			String nameCompany, Integer status, String createdAt, String updatedAt, Integer stock) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -29,7 +43,7 @@ public class ProductDTO {
 		this.listImage = listImage;
 		this.description = description;
 		this.type = type;
-		this.companyId = companyId;
+		this.nameCompany = nameCompany;
 		this.status = status;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
@@ -84,12 +98,12 @@ public class ProductDTO {
 		this.type = type;
 	}
 
-	public Integer getCompanyId() {
-		return companyId;
+	public String getNameCompany() {
+		return nameCompany;
 	}
 
-	public void setCompanyId(Integer companyId) {
-		this.companyId = companyId;
+	public void setNameCompany(String nameCompany) {
+		this.nameCompany = nameCompany;
 	}
 
 	public Integer getStatus() {

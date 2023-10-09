@@ -1,7 +1,14 @@
 package ecommerce.mobile.payload;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+@Schema(description = "OrderUpdateDTO Model Information")
 public class OrderUpdateDTO {
+	@Schema(description = "Id Order")
+	@NotNull
 	private Integer id;
+	@Schema(description = "Quantity Order")
+	@NotNull
 	private Integer quantity;
 
 	public OrderUpdateDTO() {

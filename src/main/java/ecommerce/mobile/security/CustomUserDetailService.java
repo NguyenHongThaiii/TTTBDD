@@ -28,9 +28,9 @@ public class CustomUserDetailService implements UserDetailsService {
 		User user;
 		if (email.contains("@")) {
 			user = userRepository.findByEmail(email)
-					.orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + email));
+					.orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 		} else {
-			throw new UsernameNotFoundException("User not found with username: " + email);
+			throw new UsernameNotFoundException("User not found with email: " + email);
 		}
 
 		Set<GrantedAuthority> authorities = user.getRole().stream()

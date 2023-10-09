@@ -16,16 +16,19 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "users")
 public class User extends BaseEntity {
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false, unique = true, length = 30)
 	private String email;
 
 	@Column(nullable = false)
 	private String name;
+	@Column(nullable = false, length = 15)
 	private String gender;
+	@Column(nullable = false, length = 100)
 	private String password;
+	@Column(nullable = false, length = 100)
 	private String address;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false, unique = true, length = 15)
 	private String phone;
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

@@ -20,8 +20,9 @@ import jakarta.persistence.criteria.Root;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 	@Query
-	default List<User> findWithFilters(String name, String email, String phone, String role, Integer status,
-			String createdAt, String updatedAt, String companyName, Pageable pageable, EntityManager entityManager) {
+	default List<User> findWithFilters(String name, String email, String phone, String gender, String role,
+			Integer status, String createdAt, String updatedAt, String companyName, Pageable pageable,
+			EntityManager entityManager) {
 
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 		CriteriaQuery<User> cq = cb.createQuery(User.class);
@@ -35,6 +36,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
 		if (email != null) {
 			predicates.add(cb.like(cb.lower(user.get("email")), "%" + email.toLowerCase() + "%"));
+		}
+		if (gender != null) {
+			predicates.add(cb.like(cb.lower(user.get("gender")), "%" + gender.toLowerCase() + "%"));
 		}
 		if (phone != null) {
 			predicates.add(cb.like(cb.lower(user.get("phone")), "%" + phone.toLowerCase() + "%"));
@@ -56,7 +60,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 		if (updatedAt != null) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 			String createdAtStr = createdAt.formatted(formatter);
-			predicates.add(cb.like(user.get("createdAt"), createdAtStr + "%"));
+			predicates.add(cb.like(user.get("updatedAt"), createdAtStr + "%"));
 		}
 		if (pageable.getSort() != null) {
 			List<Order> orders = new ArrayList<>();
@@ -76,9 +80,13 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
 	Boolean existsByEmail(String email);
 
+	Boolean existsByPhone(String phone);
+
 	Boolean existsByNameAndIdNot(String name, Integer id);
 
 	Optional<User> findByName(String name);
+
+	Optional<User> findByPhone(String phone);
 
 	Boolean existsByName(String email);
 

@@ -1,18 +1,38 @@
 package ecommerce.mobile.payload;
 
+import ecommerce.mobile.annotation.CheckStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+
+@Schema(description = "InvoiceUpdateDTO Model Information")
 public class InvoiceUpdateDTO {
+	@Schema(description = "Id Invoice")
+	@NotNull
 	private Integer id;
+	@Schema(description = "Status Invoice (0,1,2)")
+	@CheckStatus(allowedValues = { 0, 1, 2 })
 	private Integer status;
+	@Schema(description = "Note Invoice")
 	private String note;
+	@Schema(description = "Is Paid (true or false)")
 	private Boolean isPaid;
+	@Schema(description = "List Oders Update DTO")
 	private String listOrders;
+	@Schema(description = "Method Payment (cash or credit)")
 	private String method;
+	@Schema(description = "Tax Invoice")
+	@NotNull
+	private Float tax;
+	@Schema(description = "Total Price")
+	@NotNull
+	private Double totalPrice;
 
 	public InvoiceUpdateDTO() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public InvoiceUpdateDTO(Integer id, Integer status, String note, Boolean isPaid, String listOrders, String method) {
+	public InvoiceUpdateDTO(@NotNull Integer id, Integer status, String note, Boolean isPaid, String listOrders,
+			String method, @NotNull Float tax, @NotNull Double totalPrice) {
 		super();
 		this.id = id;
 		this.status = status;
@@ -20,6 +40,8 @@ public class InvoiceUpdateDTO {
 		this.isPaid = isPaid;
 		this.listOrders = listOrders;
 		this.method = method;
+		this.tax = tax;
+		this.totalPrice = totalPrice;
 	}
 
 	public Integer getId() {
@@ -68,6 +90,22 @@ public class InvoiceUpdateDTO {
 
 	public void setMethod(String method) {
 		this.method = method;
+	}
+
+	public Float getTax() {
+		return tax;
+	}
+
+	public void setTax(Float tax) {
+		this.tax = tax;
+	}
+
+	public Double getTotalPrice() {
+		return totalPrice;
+	}
+
+	public void setTotalPrice(Double totalPrice) {
+		this.totalPrice = totalPrice;
 	}
 
 }

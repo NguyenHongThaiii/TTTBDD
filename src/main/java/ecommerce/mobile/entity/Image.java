@@ -24,16 +24,21 @@ public class Image extends BaseEntity {
 	@JoinColumn(name = "logo_id")
 	private Logo logo;
 
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "invoice_id")
+	private Invoice invoice;
+
 	public Image() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Image(String image, Product product, User user, Logo logo) {
+	public Image(String image, Product product, User user, Logo logo, Invoice invoice) {
 		super();
 		this.image = image;
 		this.product = product;
 		this.user = user;
 		this.logo = logo;
+		this.invoice = invoice;
 	}
 
 	public String getImage() {
@@ -66,6 +71,14 @@ public class Image extends BaseEntity {
 
 	public void setLogo(Logo logo) {
 		this.logo = logo;
+	}
+
+	public Invoice getInvoice() {
+		return invoice;
+	}
+
+	public void setInvoice(Invoice invoice) {
+		this.invoice = invoice;
 	}
 
 }

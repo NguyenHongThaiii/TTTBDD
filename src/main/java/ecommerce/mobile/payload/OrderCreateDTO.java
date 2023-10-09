@@ -1,7 +1,13 @@
 package ecommerce.mobile.payload;
-
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+@Schema(description = "OrderCreateDTO Model Information")
 public class OrderCreateDTO {
+	@Schema(description = "Product Id")
+	@NotNull
 	private Integer productId;
+	@Schema(description = "Quantity Order")
+	@NotNull
 	private Integer quantity;
 
 	public OrderCreateDTO() {

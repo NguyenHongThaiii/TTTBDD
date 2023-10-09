@@ -29,6 +29,10 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
 
 	Boolean existsByName(String name);
 
+	Boolean existsByEmail(String email);
+
+	Boolean existsByPhone(String phone);
+
 	static final Logger logger = LoggerFactory.getLogger(UserServiceImp.class);
 
 	@Transactional
@@ -53,11 +57,11 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
 		if (updatedAt != null) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 			String createdAtStr = createdAt.formatted(formatter);
-			predicates.add(cb.like(company.get("createdAt"), createdAtStr + "%"));
+			predicates.add(cb.like(company.get("updatedAt"), createdAtStr + "%"));
 		}
-
-		predicates.add(cb.equal(company.get("status"), status));
-
+		if (status != null) {
+			predicates.add(cb.equal(company.get("status"), status));
+		}
 		if (pageable.getSort() != null) {
 			for (Sort.Order order : pageable.getSort()) {
 				orders.add(order.isAscending() ? cb.asc(company.get(order.getProperty()))
