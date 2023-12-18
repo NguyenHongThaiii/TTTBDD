@@ -2,23 +2,32 @@ package ecommerce.mobile.seriveimp;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ecommerce.mobile.constant.SortField;
+import ecommerce.mobile.entity.Company;
 import ecommerce.mobile.entity.Logger;
-import ecommerce.mobile.exception.AppGlobalException;
-import ecommerce.mobile.exception.ResourceNotFoundException;
+import ecommerce.mobile.entity.User;
 import ecommerce.mobile.payload.LoggerCreateDTO;
+import ecommerce.mobile.payload.LoggerDTO;
 import ecommerce.mobile.repository.LoggerRepository;
 import ecommerce.mobile.repository.UserRepository;
 import ecommerce.mobile.service.LoggerService;
 import ecommerce.mobile.utils.MapperUtils;
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.Cookie;
@@ -41,7 +50,7 @@ public class LoggerServiceImp implements LoggerService {
 	}
 
 	@Override
-	public void logError(HttpServletRequest request, String message, String result, Integer userId) {
+	public void logError(HttpServletRequest request, String message, String result, User user, Company company) {
 
 		Logger log = new Logger();
 		log.setAgent(request.getHeader("User-Agent"));
@@ -51,13 +60,14 @@ public class LoggerServiceImp implements LoggerService {
 		log.setMethod(request.getMethod());
 		log.setParams(this.getParamsAsJson(request));
 		log.setResult(result);
-		log.setUserId(userId);
+		log.setUser(user);
+		log.setCompany(company);
 
 		loggerRepository.save(log);
 	}
 
 	@Override
-	public void logInfor(HttpServletRequest request, String message, String result, Integer userId) {
+	public void logInfor(HttpServletRequest request, String message, String result, User user, Company company) {
 
 		Logger log = new Logger();
 		log.setAgent(request.getHeader("User-Agent"));
@@ -67,19 +77,20 @@ public class LoggerServiceImp implements LoggerService {
 		log.setMethod(request.getMethod());
 		log.setParams(this.getParamsAsJson(request));
 		log.setResult(result);
-		log.setUserId(userId);
+		log.setUser(user);
+		log.setCompany(company);
 
 		loggerRepository.save(log);
 	}
 
 	@Override
 	public void logError(HttpServletRequest request, String message, String result) {
-		Integer userId = null;
+		User user = null;
 		Cookie[] cookies = request.getCookies();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals("jwt")) {
-					userId = userRepository.findByEmail(cookie.getValue()).orElse(null).getId();
+					user = userRepository.findByEmail(cookie.getValue()).orElse(null);
 					break;
 				}
 
@@ -94,19 +105,22 @@ public class LoggerServiceImp implements LoggerService {
 		log.setMethod(request.getMethod());
 		log.setParams(this.getParamsAsJson(request));
 		log.setResult(result);
-		log.setUserId(userId);
+		if (user != null) {
+			log.setUser(user);
+			log.setCompany(user.getCompany());
+		}
 
 		loggerRepository.save(log);
 	}
 
 	@Override
 	public void logInfor(HttpServletRequest request, String message, String result) {
-		Integer userId = null;
+		User user = null;
 		Cookie[] cookies = request.getCookies();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals("jwt")) {
-					userId = userRepository.findByEmail(cookie.getValue()).orElse(null).getId();
+					user = userRepository.findByEmail(cookie.getValue()).orElse(null);
 					break;
 				}
 
@@ -121,19 +135,21 @@ public class LoggerServiceImp implements LoggerService {
 		log.setMethod(request.getMethod());
 		log.setParams(this.getParamsAsJson(request));
 		log.setResult(result);
-		log.setUserId(userId);
-
+		if (user != null) {
+			log.setUser(user);
+			log.setCompany(user.getCompany());
+		}
 		loggerRepository.save(log);
 	}
 
 	@Override
 	public void logError(HttpServletRequest request, String message, String result, String bodyJson) {
-		Integer userId = null;
+		User user = null;
 		Cookie[] cookies = request.getCookies();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals("jwt")) {
-					userId = userRepository.findByEmail(cookie.getValue()).orElse(null).getId();
+					user = userRepository.findByEmail(cookie.getValue()).orElse(null);
 					break;
 				}
 
@@ -148,19 +164,21 @@ public class LoggerServiceImp implements LoggerService {
 		log.setMethod(request.getMethod());
 		log.setParams(this.getParamsAsJson(request));
 		log.setResult(result);
-		log.setUserId(userId);
-
+		if (user != null) {
+			log.setUser(user);
+			log.setCompany(user.getCompany());
+		}
 		loggerRepository.save(log);
 	}
 
 	@Override
 	public void logInfor(HttpServletRequest request, String message, String result, String bodyJson) {
-		Integer userId = null;
+		User user = null;
 		Cookie[] cookies = request.getCookies();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals("jwt")) {
-					userId = userRepository.findByEmail(cookie.getValue()).orElse(null).getId();
+					user = userRepository.findByEmail(cookie.getValue()).orElse(null);
 					break;
 				}
 
@@ -175,13 +193,16 @@ public class LoggerServiceImp implements LoggerService {
 		log.setMethod(request.getMethod());
 		log.setParams(this.getParamsAsJson(request));
 		log.setResult(result);
-		log.setUserId(userId);
-
+		if (user != null) {
+			log.setUser(user);
+			log.setCompany(user.getCompany());
+		}
 		loggerRepository.save(log);
 	}
 
 	@Override
-	public void logInfor(HttpServletRequest request, String message, String result, String bodyJson, Integer userId) {
+	public void logInfor(HttpServletRequest request, String message, String result, String bodyJson, User user,
+			Company company) {
 
 		Logger log = new Logger();
 		log.setAgent(request.getHeader("User-Agent"));
@@ -191,16 +212,17 @@ public class LoggerServiceImp implements LoggerService {
 		log.setMethod(request.getMethod());
 		log.setParams(this.getParamsAsJson(request));
 		log.setResult(result);
-		log.setUserId(userId);
+		log.setUser(user);
+		log.setCompany(company);
 
 		loggerRepository.save(log);
 	}
 
 	@Override
-	public LoggerCreateDTO createLoggerCreateDto(String method, Integer userId, String message, String agent,
-			String result, String params, String body, String endpoint) {
+	public LoggerCreateDTO createLoggerCreateDto(String method, User user, String message, String agent, String result,
+			String params, String body, String endpoint) {
 
-		return new LoggerCreateDTO(method, userId, message, agent, result, params, body, endpoint);
+		return new LoggerCreateDTO(method, user.getId(), message, agent, result, params, body, endpoint);
 	}
 
 	@Override
@@ -250,6 +272,53 @@ public class LoggerServiceImp implements LoggerService {
 			e.printStackTrace();
 			return "{}";
 		}
+	}
+
+	@Override
+	public List<LoggerDTO> getAllLoggers(Integer limit, Integer page, Integer status, String method, Integer userId,
+			String companyName, String message, String agent, String result, String params, String body,
+			String endpoint, String createdAt, String updatedAt, String sortBy) {
+		List<SortField> validSortFields = Arrays.asList(SortField.ID, SortField.NAME, SortField.UPDATEDAT,
+				SortField.CREATEDAT, SortField.IDDESC, SortField.NAMEDESC, SortField.UPDATEDATDESC,
+				SortField.CREATEDATDESC);
+		Pageable pageable = PageRequest.of(page - 1, limit);
+		List<String> sortByList = new ArrayList<String>();
+		List<Logger> loggerList = null;
+		List<Sort.Order> sortOrders = new ArrayList<>();
+		List<LoggerDTO> listLoggerDto;
+
+		if (!StringUtils.isEmpty(sortBy))
+			sortByList = Arrays.asList(sortBy.split(","));
+
+		for (String sb : sortByList) {
+			boolean isDescending = sb.endsWith("Desc");
+
+			if (isDescending && !StringUtils.isEmpty(sortBy))
+				sb = sb.substring(0, sb.length() - 4).trim();
+
+			for (SortField sortField : validSortFields) {
+				if (sortField.toString().equals(sb)) {
+					sortOrders.add(isDescending ? Sort.Order.desc(sb) : Sort.Order.asc(sb));
+					break;
+				}
+			}
+		}
+
+		if (!sortOrders.isEmpty())
+			pageable = PageRequest.of(page - 1, limit, Sort.by(sortOrders));
+
+		loggerList = loggerRepository.findWithFilters(status, method, userId, companyName, message, agent, result,
+				params, body, endpoint, createdAt, updatedAt, pageable, entityManager);
+		listLoggerDto = loggerList.stream().map(logger -> {
+			LoggerDTO loggerDto = MapperUtils.mapToDTO(logger, LoggerDTO.class);
+			if (logger.getCompany() != null)
+				loggerDto.setCompanyName(logger.getCompany().getName());
+
+			return loggerDto;
+		}).collect(Collectors.toList());
+
+		return listLoggerDto;
+
 	}
 
 }

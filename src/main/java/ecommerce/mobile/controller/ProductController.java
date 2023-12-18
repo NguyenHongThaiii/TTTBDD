@@ -45,8 +45,8 @@ public class ProductController {
 	@ApiResponse(responseCode = "200", description = "Http status 200 OK")
 	@PreAuthorize("hasAnyRole('ADMIN','MOD','USER')")
 	@GetMapping("")
-	public ResponseEntity<List<ProductDTO>> getListProducts(@RequestParam(defaultValue = "20") int limit,
-			@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) Integer status,
+	public ResponseEntity<List<ProductDTO>> getListProducts(@RequestParam(defaultValue = "20") Integer limit,
+			@RequestParam(defaultValue = "1") Integer page, @RequestParam(required = false) Integer status,
 			@RequestParam(required = false) String name, @RequestParam(required = false) String description,
 			@RequestParam(required = false) Integer type, @RequestParam(required = false) Integer priceMin,
 			@RequestParam(required = false) String createdAt, @RequestParam(required = false) String updatedAt,

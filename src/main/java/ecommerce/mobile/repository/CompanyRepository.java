@@ -50,12 +50,12 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
 			predicates.add(cb.like(cb.lower(company.get("name")), "%" + name.toLowerCase() + "%"));
 		}
 		if (createdAt != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy:HH:mm:ss");
 			String createdAtStr = createdAt.formatted(formatter);
 			predicates.add(cb.like(company.get("createdAt"), createdAtStr + "%"));
 		}
 		if (updatedAt != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy:HH:mm:ss");
 			String createdAtStr = createdAt.formatted(formatter);
 			predicates.add(cb.like(company.get("updatedAt"), createdAtStr + "%"));
 		}

@@ -184,12 +184,13 @@ public class UserServiceImp implements UserService {
 			cookie.setPath("/");
 			response.addCookie(cookie);
 			loggerService.logInfor(request, "Login User", "SUCCESSFULLY", objectMapper.writeValueAsString(loginDto),
-					user.getId());
+					user, user.getCompany());
 			return userDto;
 
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			try {
+				loginDto.setPassword("");
 				loggerService.logError(request, "Login User", "FAILED", objectMapper.writeValueAsString(loginDto));
 			} catch (JsonProcessingException e1) {
 				// TODO Auto-generated catch block
@@ -233,11 +234,12 @@ public class UserServiceImp implements UserService {
 				reg.getRoles().add(role.getName());
 			});
 			loggerService.logInfor(request, "Register User", "SUCCESSFULLY",
-					objectMapper.writeValueAsString(registerDto), user.getId());
+					objectMapper.writeValueAsString(registerDto), user, user.getCompany());
 			return reg;
 
 		} catch (JsonProcessingException e) {
 			try {
+				registerDto.setPassword("");
 				loggerService.logError(request, "Register User", "FAILED",
 						objectMapper.writeValueAsString(registerDto));
 			} catch (JsonProcessingException e1) {

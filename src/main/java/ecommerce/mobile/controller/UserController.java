@@ -51,8 +51,8 @@ public class UserController {
 	@ApiResponse(responseCode = "200", description = "Http status 200 OK")
 	@PreAuthorize("hasAnyRole('ADMIN','MOD','USER')")
 	@GetMapping("/users")
-	public ResponseEntity<List<UserDTO>> getListUsers(@RequestParam(defaultValue = "20") int limit,
-			@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String name,
+	public ResponseEntity<List<UserDTO>> getListUsers(@RequestParam(defaultValue = "20") Integer limit,
+			@RequestParam(defaultValue = "1") Integer page, @RequestParam(required = false) String name,
 			@RequestParam(required = false) String email, @RequestParam(required = false) Integer status,
 			@RequestParam(required = false) String createdAt, @RequestParam(required = false) String updatedAt,
 			@RequestParam(required = false) String phone, @RequestParam(required = false) String role,

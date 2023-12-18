@@ -58,12 +58,12 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
 			predicates.add(cb.equal(invoice.get("status"), status));
 		}
 		if (createdAt != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy:HH:mm:ss");
 			String createdAtStr = createdAt.formatted(formatter);
 			predicates.add(cb.like(invoice.get("createdAt"), createdAtStr + "%"));
 		}
 		if (updatedAt != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy:HH:mm:ss");
 			String createdAtStr = createdAt.formatted(formatter);
 			predicates.add(cb.like(invoice.get("updatedAt"), createdAtStr + "%"));
 		}

@@ -1,32 +1,43 @@
 package ecommerce.mobile.payload;
 
-import org.hibernate.annotations.Check;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
-
+@Schema(description = "LoggerDTO Model Information")
 public class LoggerDTO {
+	@Schema(description = "Id Logger")
 	private Integer id;
+	@Schema(description = "Status Logger")
 	private Integer status;
+	@Schema(description = "CreatedAt Logger")
 	private String createdAt;
+	@Schema(description = "UpdatedAt Logger")
 	private String updatedAt;
+	@Schema(description = "Method Logger")
 	private String method;
+	@Schema(description = "User Id ")
 	private String userId;
+	@Schema(description = "Message Logger")
 	private String message;
+	@Schema(description = "Agent Logger")
 	private String agent;
+	@Schema(description = "Result Logger")
 	private String result;
+	@Schema(description = "Params Logger")
 	private String params;
+	@Schema(description = "body Logger")
 	private String body;
+	@Schema(description = "Endpoint Logger")
 	private String endpoint;
+	@Schema(description = "Company Name")
+	private String companyName;
 
 	public LoggerDTO() {
 		// TODO Auto-generated constructor stub
 	}
 
 	public LoggerDTO(Integer id, Integer status, String createdAt, String updatedAt, String method, String userId,
-			String message, String agent, String result, String params, String body, String endpoint) {
+			String message, String agent, String result, String params, String body, String endpoint,
+			String companyName) {
 		super();
 		this.id = id;
 		this.status = status;
@@ -40,6 +51,7 @@ public class LoggerDTO {
 		this.params = params;
 		this.body = body;
 		this.endpoint = endpoint;
+		this.companyName = companyName;
 	}
 
 	public Integer getId() {
@@ -136,6 +148,14 @@ public class LoggerDTO {
 
 	public void setEndpoint(String endpoint) {
 		this.endpoint = endpoint;
+	}
+
+	public String getCompanyName() {
+		return companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
 	}
 
 }

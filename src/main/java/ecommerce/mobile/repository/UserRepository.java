@@ -53,12 +53,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 			predicates.add(cb.like(cb.lower(user.get("company").get("name")), "%" + companyName.toLowerCase() + "%"));
 		}
 		if (createdAt != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy:HH:mm:ss");
 			String createdAtStr = createdAt.formatted(formatter);
 			predicates.add(cb.like(user.get("createdAt"), createdAtStr + "%"));
 		}
 		if (updatedAt != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy:HH:mm:ss");
 			String createdAtStr = createdAt.formatted(formatter);
 			predicates.add(cb.like(user.get("updatedAt"), createdAtStr + "%"));
 		}

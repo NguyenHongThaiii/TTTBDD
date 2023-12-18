@@ -56,12 +56,12 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 			predicates.add(cb.equal(product.get("status"), status));
 		}
 		if (createdAt != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy:HH:mm:ss");
 			String createdAtStr = createdAt.formatted(formatter);
 			predicates.add(cb.like(product.get("createdAt"), createdAtStr + "%"));
 		}
 		if (updatedAt != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy:HH:mm:ss");
 			String createdAtStr = createdAt.formatted(formatter);
 			predicates.add(cb.like(product.get("updatedAt"), createdAtStr + "%"));
 		}

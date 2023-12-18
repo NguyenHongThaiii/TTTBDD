@@ -1,13 +1,17 @@
 package ecommerce.mobile.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "loggers")
-public class Logger extends BaseEntityNotCompany {
+public class Logger extends BaseEntity {
 	private String method;
-	private Integer userId;
+	@ManyToOne(fetch = FetchType.EAGER)
+	private User user;
 	private String message;
 	private String agent;
 	private String result;
@@ -16,14 +20,13 @@ public class Logger extends BaseEntityNotCompany {
 	private String endpoint;
 
 	public Logger() {
-		// TODO Auto-generated constructor stub
 	}
 
-	public Logger(String method, Integer userId, String message, String agent, String result, String params,
-			String body, String endpoint) {
+	public Logger(String method, User user, String message, String agent, String result, String params, String body,
+			String endpoint) {
 		super();
 		this.method = method;
-		this.userId = userId;
+		this.user = user;
 		this.message = message;
 		this.agent = agent;
 		this.result = result;
@@ -40,12 +43,12 @@ public class Logger extends BaseEntityNotCompany {
 		this.method = method;
 	}
 
-	public Integer getUserId() {
-		return userId;
+	public User getUser() {
+		return user;
 	}
 
-	public void setUserId(Integer userId) {
-		this.userId = userId;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public String getMessage() {

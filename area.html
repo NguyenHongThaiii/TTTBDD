@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Danh sách khu vực</title>
+  </head>
+  <body>
+    <h1>Danh sách khu vực</h1>
+
+    <ul id="areaList">
+      <!-- Danh sách khu vực sẽ được thêm vào đây -->
+    </ul>
+
+    <script>
+      // Sử dụng JavaScript để gửi yêu cầu GET đến máy chủ
+      fetch("http://127.0.0.1:8080/api/v1/areas") // Thay đổi URL tương ứng với địa chỉ API của bạn
+        .then((response) => response.json())
+        .then((data) => {
+          const areaList = document.getElementById("areaList");
+          data.forEach((area) => {
+            const listItem = document.createElement("li");
+            listItem.textContent = area.name; // Thay 'name' bằng thuộc tính bạn muốn hiển thị
+            areaList.appendChild(listItem);
+          });
+        })
+        .catch((error) => {
+          console.error("Lỗi khi tải danh sách khu vực: ", error);
+        });
+    </script>
+  </body>
+</html>

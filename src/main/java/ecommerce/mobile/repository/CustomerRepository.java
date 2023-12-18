@@ -63,12 +63,12 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 			predicates.add(cb.like(cb.lower(customer.get("phone")), "%" + phone.toLowerCase() + "%"));
 		}
 		if (createdAt != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy:HH:mm:ss");
 			String createdAtStr = createdAt.formatted(formatter);
 			predicates.add(cb.like(customer.get("createdAt"), createdAtStr + "%"));
 		}
 		if (updatedAt != null) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy:HH:mm:ss");
 			String createdAtStr = createdAt.formatted(formatter);
 			predicates.add(cb.like(customer.get("updatedAt"), createdAtStr + "%"));
 		}
