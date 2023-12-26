@@ -9,10 +9,6 @@ public class ResetPasswordDTO {
 	@NotNull
 	private String email;
 
-	@Schema(description = "Old Password User")
-	@NotNull
-	private String oldPassword;
-
 	@Schema(description = "Password User")
 	@NotNull
 	private String password;
@@ -24,11 +20,9 @@ public class ResetPasswordDTO {
 		// TODO Auto-generated constructor stub
 	}
 
-	public ResetPasswordDTO(@NotNull String email, @NotNull String oldPassword, @NotNull String password,
-			@NotNull String retypePassword) {
+	public ResetPasswordDTO(@NotNull String email, @NotNull String password, @NotNull String retypePassword) {
 		super();
 		this.email = email;
-		this.oldPassword = oldPassword;
 		this.password = password;
 		this.retypePassword = retypePassword;
 	}
@@ -39,14 +33,6 @@ public class ResetPasswordDTO {
 
 	public void setEmail(String email) {
 		this.email = email;
-	}
-
-	public String getOldPassword() {
-		return oldPassword;
-	}
-
-	public void setOldPassword(String oldPassword) {
-		this.oldPassword = oldPassword;
 	}
 
 	public String getPassword() {

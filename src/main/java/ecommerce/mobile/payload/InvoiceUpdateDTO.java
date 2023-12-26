@@ -26,13 +26,15 @@ public class InvoiceUpdateDTO {
 	@Schema(description = "Total Price")
 	@NotNull
 	private Double totalPrice;
+	@Schema(description = "Address Invoice")
+	private String address;
 
 	public InvoiceUpdateDTO() {
 		// TODO Auto-generated constructor stub
 	}
 
 	public InvoiceUpdateDTO(@NotNull Integer id, Integer status, String note, Boolean isPaid, String listOrders,
-			String method, @NotNull Float tax, @NotNull Double totalPrice) {
+			String method, @NotNull Float tax, @NotNull Double totalPrice, String address) {
 		super();
 		this.id = id;
 		this.status = status;
@@ -42,6 +44,7 @@ public class InvoiceUpdateDTO {
 		this.method = method;
 		this.tax = tax;
 		this.totalPrice = totalPrice;
+		this.address = address;
 	}
 
 	public Integer getId() {
@@ -106,6 +109,14 @@ public class InvoiceUpdateDTO {
 
 	public void setTotalPrice(Double totalPrice) {
 		this.totalPrice = totalPrice;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 }

@@ -42,7 +42,7 @@ public class CustomerController {
 	@SecurityRequirement(name = "jwt")
 	@Operation(summary = "Get all Customers")
 	@ApiResponse(responseCode = "200", description = "Http status 200 OK")
-	@PreAuthorize("hasAnyRole('ADMIN','MOD')")
+	@PreAuthorize("hasAnyRole('ADMIN','MOD','USER')")
 	@GetMapping("")
 	public ResponseEntity<List<CustomerDTO>> getAllCustomers(@RequestParam(defaultValue = "20") Integer limit,
 			@RequestParam(defaultValue = "1") Integer page, @RequestParam(required = false) Integer status,
@@ -58,7 +58,7 @@ public class CustomerController {
 	@SecurityRequirement(name = "jwt")
 	@Operation(summary = "Get Customer by id")
 	@ApiResponse(responseCode = "200", description = "Http status 200 OK")
-	@PreAuthorize("hasAnyRole('ADMIN','MOD')")
+	@PreAuthorize("hasAnyRole('ADMIN','MOD','USER')")
 	@GetMapping("/{id}")
 	public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable(name = "id") Integer id) {
 		CustomerDTO CustomerDTO = customerService.getCustomerById(id);
@@ -68,7 +68,7 @@ public class CustomerController {
 	@SecurityRequirement(name = "jwt")
 	@Operation(summary = "Create Customer (only admin)")
 	@ApiResponse(responseCode = "200", description = "Http status 201 CREATED")
-	@PreAuthorize("hasAnyRole('ADMIN','MOD')")
+	@PreAuthorize("hasAnyRole('ADMIN','MOD','USER')")
 	@PostMapping("")
 	public ResponseEntity<CustomerDTO> createCustomer(@Valid @RequestBody CustomerCreateDTO cs,
 			HttpServletRequest request) throws IOException {
@@ -79,7 +79,7 @@ public class CustomerController {
 	@SecurityRequirement(name = "jwt")
 	@Operation(summary = "Update Customer by id")
 	@ApiResponse(responseCode = "200", description = "Http status 200 OK")
-	@PreAuthorize("hasAnyRole('ADMIN','MOD')")
+	@PreAuthorize("hasAnyRole('ADMIN','MOD','USER')")
 	@PatchMapping("")
 	public ResponseEntity<CustomerDTO> updateCustomerById(@Valid @RequestBody CustomerUpdateDTO cs,
 			HttpServletRequest request) throws IOException {
@@ -90,7 +90,7 @@ public class CustomerController {
 	@SecurityRequirement(name = "jwt")
 	@Operation(summary = "Delete Customer by id")
 	@ApiResponse(responseCode = "200", description = "Http status 200 OK")
-	@PreAuthorize("hasAnyRole('ADMIN','MOD')")
+	@PreAuthorize("hasAnyRole('ADMIN','MOD','USER')")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<String> deleteCustomerById(@PathVariable(name = "id") Integer id, HttpServletRequest request)
 			throws IOException {

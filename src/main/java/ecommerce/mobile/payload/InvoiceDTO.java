@@ -39,6 +39,8 @@ public class InvoiceDTO {
 	private Float tax;
 	@Schema(description = "Total Price")
 	private Double totalPrice;
+	@Schema(description = "Address Invoice")
+	private String address;
 
 	public InvoiceDTO() {
 		// TODO Auto-generated constructor stub
@@ -46,7 +48,7 @@ public class InvoiceDTO {
 
 	public InvoiceDTO(Integer id, Integer status, String createdAt, String updatedAt, Integer quantity, String note,
 			Boolean isPaid, List<OrderDTO> orders, String emailUser, String emailGuest, String companyName,
-			String method, String key, String qrImage, Float tax, Double totalPrice) {
+			String method, String key, String qrImage, Float tax, Double totalPrice, String address) {
 		super();
 		this.id = id;
 		this.status = status;
@@ -64,6 +66,7 @@ public class InvoiceDTO {
 		this.qrImage = qrImage;
 		this.tax = tax;
 		this.totalPrice = totalPrice;
+		this.address = address;
 	}
 
 	public Integer getId() {
@@ -192,6 +195,14 @@ public class InvoiceDTO {
 
 	public void setTotalPrice(Double totalPrice) {
 		this.totalPrice = totalPrice;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 }

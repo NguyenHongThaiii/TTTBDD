@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import ecommerce.mobile.payload.ChangePassworDTO;
 import ecommerce.mobile.payload.ForgotPasswordDTO;
 import ecommerce.mobile.payload.LoginDTO;
 import ecommerce.mobile.payload.RegisterDTO;
@@ -159,7 +160,7 @@ public class UserController {
 	@ApiResponse(responseCode = "200", description = "Http status 200 OK")
 	@PreAuthorize("hasAnyRole('ADMIN','MOD','USER')")
 	@PostMapping("/changePassword")
-	public ResponseEntity<String> changePassword(@Valid @RequestBody(required = true) ResetPasswordDTO reset,
+	public ResponseEntity<String> changePassword(@Valid @RequestBody(required = true) ChangePassworDTO reset,
 			HttpServletRequest request) {
 		userService.changePassword(reset, request);
 		return ResponseEntity.ok("Ok");

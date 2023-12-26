@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ecommerce.mobile.constant.SortField;
 import ecommerce.mobile.entity.Company;
+import ecommerce.mobile.entity.Customer;
 import ecommerce.mobile.entity.Image;
 import ecommerce.mobile.entity.Invoice;
 import ecommerce.mobile.entity.Order;
@@ -35,6 +36,7 @@ import ecommerce.mobile.payload.OrderCreateDTO;
 import ecommerce.mobile.payload.OrderDTO;
 import ecommerce.mobile.payload.OrderUpdateDTO;
 import ecommerce.mobile.repository.CompanyRepository;
+import ecommerce.mobile.repository.CustomerRepository;
 import ecommerce.mobile.repository.ImageRepository;
 import ecommerce.mobile.repository.InvoiceRepository;
 import ecommerce.mobile.repository.OrderRepository;
@@ -59,6 +61,7 @@ public class InvoiceServiceImp implements InvoiceService {
 	private EntityManager entityManager;
 	private ProductRepository productRepository;
 	private UserRepository userRepository;
+	private CustomerRepository customerRepository;
 	private OrderRepository orderRepository;
 	private CompanyRepository companyRepository;
 	private EmailService emailService;
@@ -71,13 +74,15 @@ public class InvoiceServiceImp implements InvoiceService {
 	private final String path = "mobile/Invoices";
 
 	public InvoiceServiceImp(EntityManager entityManager, ProductRepository productRepository,
-			UserRepository userRepository, OrderRepository orderRepository, CompanyRepository companyRepository,
-			EmailService emailService, ImageRepository imageRepository, CloudinaryService cloudinaryService,
-			InvoiceRepository invoiceRepository, LoggerService loggerService, ObjectMapper objectMapper) {
+			UserRepository userRepository, CustomerRepository customerRepository, OrderRepository orderRepository,
+			CompanyRepository companyRepository, EmailService emailService, ImageRepository imageRepository,
+			CloudinaryService cloudinaryService, InvoiceRepository invoiceRepository, LoggerService loggerService,
+			ObjectMapper objectMapper) {
 		super();
 		this.entityManager = entityManager;
 		this.productRepository = productRepository;
 		this.userRepository = userRepository;
+		this.customerRepository = customerRepository;
 		this.orderRepository = orderRepository;
 		this.companyRepository = companyRepository;
 		this.emailService = emailService;
@@ -95,8 +100,8 @@ public class InvoiceServiceImp implements InvoiceService {
 		try {
 			User user = userRepository.findByEmail(invoiceCreateDto.getEmailUser())
 					.orElseThrow(() -> new ResourceNotFoundException("User", "email", invoiceCreateDto.getEmailUser()));
-			User guest = userRepository.findByPhone(invoiceCreateDto.getPhoneGuest()).orElseThrow(
-					() -> new ResourceNotFoundException("User", "phone", invoiceCreateDto.getPhoneGuest()));
+			Customer customer = customerRepository.findByPhone(invoiceCreateDto.getPhoneGuest()).orElseThrow(
+					() -> new ResourceNotFoundException("Customer", "phone", invoiceCreateDto.getPhoneGuest()));
 			Company company = companyRepository.findByName(invoiceCreateDto.getCompanyName()).orElseThrow(
 					() -> new ResourceNotFoundException("Company", "name", invoiceCreateDto.getCompanyName()));
 			url = cloudinaryService.uploadImage(invoiceCreateDto.getQrImage(), path, "image");
@@ -105,7 +110,7 @@ public class InvoiceServiceImp implements InvoiceService {
 			Integer totalQuantity = 0;
 			invoice.setCompany(company);
 			invoice.setUser(user);
-			invoice.setGuest(guest);
+			invoice.setCustomer(customer);
 			invoice.setIsPaid(invoiceCreateDto.getIsPaid());
 			invoice.setMethod(invoiceCreateDto.getMethod());
 			invoice.setNote(invoiceCreateDto.getNote());
@@ -113,6 +118,7 @@ public class InvoiceServiceImp implements InvoiceService {
 			invoice.setKey(invoiceCreateDto.getKey());
 			invoice.setTax(invoiceCreateDto.getTax());
 			invoice.setTotalPrice(invoiceCreateDto.getTotalPrice());
+			invoice.setAddress(invoiceCreateDto.getAddress());
 			invoiceRepository.save(invoice);
 
 			Image qr = new Image();
@@ -139,7 +145,7 @@ public class InvoiceServiceImp implements InvoiceService {
 				order.setStatus(1);
 				order.setInvoice(invoice);
 				order.setUser(user);
-				order.setGuest(guest);
+				order.setCustomer(customer);
 				order.setProduct(product);
 				totalQuantity += orderDto.getQuantity();
 				listOrder.add(order);
@@ -152,45 +158,48 @@ public class InvoiceServiceImp implements InvoiceService {
 				orderDto.setProductId(order.getProduct().getId());
 				orderDto.setStatus(1);
 				orderDto.setUserId(user.getId());
-				orderDto.setGuestId(guest.getId());
+				orderDto.setGuestId(customer.getId());
 				listOrderDto.add(orderDto);
 			});
 			invoiceDto.setOrders(listOrderDto);
 			invoiceDto.setCompanyName(company.getName());
 			invoiceDto.setQuantity(totalQuantity);
 			invoiceDto.setEmailUser(user.getEmail());
-			invoiceDto.setEmailGuest(guest.getEmail());
+			invoiceDto.setEmailGuest(customer.getEmail());
 			invoiceDto.setQrImage(url);
 			invoiceDto.setKey(invoice.getKey());
+			invoiceCreateDto.setQrImage(null);
 			loggerService.logInfor(request, "Create Invoice", "SUCCESSFULLY",
 					objectMapper.writeValueAsString(invoiceCreateDto));
 			return invoiceDto;
 
 		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 			try {
+				invoiceCreateDto.setQrImage(null);
 				cloudinaryService.removeImageFromCloudinary(url, path);
 				loggerService.logError(request, "Create Invoice", "FAILED",
 						objectMapper.writeValueAsString(invoiceCreateDto));
 
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
+
 				throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 			}
 			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR,
 					"Error creating the invoice JsonMappingException");
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 			try {
+				invoiceCreateDto.setQrImage(null);
 				cloudinaryService.removeImageFromCloudinary(url, path);
 				loggerService.logError(request, "Create Invoice", "FAILED",
 						objectMapper.writeValueAsString(invoiceCreateDto));
 				throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
+
 				e1.printStackTrace();
 
 			}
@@ -198,16 +207,17 @@ public class InvoiceServiceImp implements InvoiceService {
 					"Error creating the invoice JsonProcessingException");
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 			try {
+				invoiceCreateDto.setQrImage(null);
 				cloudinaryService.removeImageFromCloudinary(url, path);
 				loggerService.logError(request, "Create Invoice", "FAILED",
 						objectMapper.writeValueAsString(invoiceCreateDto));
 				throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
+
 				e1.printStackTrace();
 			}
 			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, "Error creating the invoice IOException");
@@ -235,6 +245,8 @@ public class InvoiceServiceImp implements InvoiceService {
 				invoice.setTax(invoiceUpdateDto.getTax());
 			if (invoiceUpdateDto.getTotalPrice() != null)
 				invoice.setTotalPrice(invoiceUpdateDto.getTotalPrice());
+			if (invoiceUpdateDto.getAddress() != null)
+				invoice.setAddress(invoiceUpdateDto.getAddress());
 
 			Integer totalQuantity = 0;
 			List<Order> listOrder = new ArrayList<>();
@@ -263,7 +275,7 @@ public class InvoiceServiceImp implements InvoiceService {
 					orderDto.setProductId(order.getProduct().getId());
 					orderDto.setStatus(order.getStatus());
 					orderDto.setUserId(order.getUser().getId());
-					orderDto.setGuestId(order.getGuest().getId());
+					orderDto.setGuestId(order.getCustomer().getId());
 					listOrderDto.add(orderDto);
 				});
 			} else {
@@ -274,7 +286,7 @@ public class InvoiceServiceImp implements InvoiceService {
 					orderDto.setProductId(order.getProduct().getId());
 					orderDto.setStatus(order.getStatus());
 					orderDto.setUserId(order.getUser().getId());
-					orderDto.setGuestId(order.getGuest().getId());
+					orderDto.setGuestId(order.getCustomer().getId());
 					totalQuantity += order.getQuantity();
 					listOrderDto.add(orderDto);
 				}
@@ -285,7 +297,7 @@ public class InvoiceServiceImp implements InvoiceService {
 			invoiceDto.setCompanyName(invoice.getCompany().getName());
 			invoiceDto.setQuantity(totalQuantity);
 			invoiceDto.setEmailUser(invoice.getUser().getEmail());
-			invoiceDto.setEmailGuest(invoice.getGuest().getEmail());
+			invoiceDto.setEmailGuest(invoice.getCustomer().getEmail());
 			invoiceDto.setQrImage(invoice.getQrImage().getImage());
 			invoiceDto.setKey(invoice.getKey());
 			invoice.setOrders(listOrder);
@@ -295,7 +307,7 @@ public class InvoiceServiceImp implements InvoiceService {
 			return invoiceDto;
 
 		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 			try {
 				loggerService.logError(request, "Update Invoice", "FAILED",
@@ -303,13 +315,13 @@ public class InvoiceServiceImp implements InvoiceService {
 				throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 
 			} catch (JsonProcessingException e1) {
-				// TODO Auto-generated catch block
+
 				e1.printStackTrace();
 			}
 			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating the invoice");
 
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 			try {
 				loggerService.logError(request, "Update Invoice", "FAILED",
@@ -317,7 +329,7 @@ public class InvoiceServiceImp implements InvoiceService {
 				throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 
 			} catch (JsonProcessingException e1) {
-				// TODO Auto-generated catch block
+
 				e1.printStackTrace();
 			}
 			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating the invoice");
@@ -341,7 +353,7 @@ public class InvoiceServiceImp implements InvoiceService {
 			orderDto.setInvoiceId(id);
 			orderDto.setProductId(order.getProduct().getId());
 			orderDto.setUserId(order.getUser().getId());
-			orderDto.setGuestId(order.getGuest().getId());
+			orderDto.setGuestId(order.getCustomer().getId());
 			totalQuantity += order.getQuantity();
 			listOrderDto.add(orderDto);
 		}
@@ -349,7 +361,7 @@ public class InvoiceServiceImp implements InvoiceService {
 		invoiceDto.setOrders(listOrderDto);
 		invoiceDto.setCompanyName(invoice.getCompany().getName());
 		invoiceDto.setEmailUser(invoice.getUser().getEmail());
-		invoiceDto.setEmailGuest(invoice.getGuest().getEmail());
+		invoiceDto.setEmailGuest(invoice.getCustomer().getEmail());
 		invoiceDto.setQuantity(totalQuantity);
 		invoiceDto.setQrImage(invoice.getQrImage().getImage());
 		invoiceDto.setKey(invoice.getKey());
@@ -401,14 +413,14 @@ public class InvoiceServiceImp implements InvoiceService {
 				orderDto.setInvoiceId(invoice.getId());
 				orderDto.setProductId(order.getProduct().getId());
 				orderDto.setUserId(order.getUser().getId());
-				orderDto.setGuestId(order.getGuest().getId());
+				orderDto.setGuestId(order.getCustomer().getId());
 				totalQuantity += order.getQuantity();
 				listOrderDto.add(orderDto);
 			}
 			invoiceDto.setOrders(listOrderDto);
 			invoiceDto.setCompanyName(invoice.getCompany().getName());
 			invoiceDto.setEmailUser(invoice.getUser().getEmail());
-			invoiceDto.setEmailGuest(invoice.getGuest().getEmail());
+			invoiceDto.setEmailGuest(invoice.getCustomer().getEmail());
 			invoiceDto.setQuantity(totalQuantity);
 			invoiceDto.setQrImage(invoice.getQrImage().getImage());
 			invoiceDto.setKey(invoice.getKey());
@@ -454,7 +466,7 @@ public class InvoiceServiceImp implements InvoiceService {
 			orderDto.setInvoiceId(invoice.getId());
 			orderDto.setProductId(order.getProduct().getId());
 			orderDto.setUserId(order.getUser().getId());
-			orderDto.setGuestId(order.getGuest().getId());
+			orderDto.setGuestId(order.getCustomer().getId());
 			totalQuantity += order.getQuantity();
 			listOrderDto.add(orderDto);
 		}
@@ -462,7 +474,7 @@ public class InvoiceServiceImp implements InvoiceService {
 		invoiceDto.setOrders(listOrderDto);
 		invoiceDto.setCompanyName(invoice.getCompany().getName());
 		invoiceDto.setEmailUser(invoice.getUser().getEmail());
-		invoiceDto.setEmailGuest(invoice.getGuest().getEmail());
+		invoiceDto.setEmailGuest(invoice.getCustomer().getEmail());
 		invoiceDto.setQuantity(totalQuantity);
 		invoiceDto.setQrImage(invoice.getQrImage().getImage());
 		invoiceDto.setKey(invoice.getKey());

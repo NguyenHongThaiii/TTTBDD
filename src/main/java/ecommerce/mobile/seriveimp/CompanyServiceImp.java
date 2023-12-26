@@ -146,9 +146,11 @@ public class CompanyServiceImp implements CompanyService {
 
 			CompanyDTO companyDTO = MapperUtils.mapToDTO(company, CompanyDTO.class);
 			companyDTO.setLogo(url);
+			cpr.setLogo(null);
 			loggerService.logInfor(request, "Create Invoice", "SUCCESSFULLY", objectMapper.writeValueAsString(cpr));
 			return companyDTO;
 		} catch (Exception e) {
+			cpr.setLogo(null);
 			loggerService.logError(request, "Create Invoice", "FAILED", objectMapper.writeValueAsString(cpr));
 
 			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -190,10 +192,13 @@ public class CompanyServiceImp implements CompanyService {
 
 			CompanyDTO companyDto = MapperUtils.mapToDTO(company, CompanyDTO.class);
 			companyDto.setLogo(company.getLogo().getLogo().getImage());
+			cpu.setLogo(null);
 			loggerService.logInfor(request, "Update Invoice", "SUCCESSFULLY", objectMapper.writeValueAsString(cpu));
 
 			return companyDto;
 		} catch (Exception e) {
+			cpu.setLogo(null);
+
 			loggerService.logError(request, "Update Invoice", "FAILED", objectMapper.writeValueAsString(cpu));
 
 			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

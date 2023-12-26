@@ -46,8 +46,16 @@ public class GlobalAPIException extends ResponseEntityExceptionHandler {
 	@Override
 	public ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers,
 			HttpStatusCode status, WebRequest request) {
-		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter), ex.getMessage(),
-				request.getDescription(false));
+		int beginIndex = 0; // Calculate or obtain dynamically
+		int endIndex = ex.getMessage().length();
+		ErrorDetails errorDetails = null;
+		if (endIndex > 255) {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					ex.getMessage().substring(beginIndex, 254), request.getDescription(false));
+		} else {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					ex.getMessage().substring(beginIndex, endIndex), request.getDescription(false));
+		}
 
 		return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
 	}
@@ -56,10 +64,23 @@ public class GlobalAPIException extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<ErrorDetails> handleResourceNotFoundException(ResourceNotFoundException exception,
 			WebRequest webRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter), exception.getMessage(),
-				webRequest.getDescription(false));
+		int beginIndex = 0; // Calculate or obtain dynamically
+		int endIndex = exception.getMessage().length();
+		ErrorDetails errorDetails = null;
 		User user = this.handleLoggerError(request, response, false);
-		loggerService.logError(request, exception.getMessage(), "FAILED", user, user.getCompany());
+		if (endIndex > 255) {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					exception.getMessage().substring(beginIndex, 254), webRequest.getDescription(false));
+			loggerService.logError(request, exception.getMessage().substring(0, 255), "FAILED", user,
+					user.getCompany());
+
+		} else {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					exception.getMessage().substring(beginIndex, endIndex), webRequest.getDescription(false));
+			loggerService.logError(request, exception.getMessage().substring(0, endIndex), "FAILED", user,
+					user.getCompany());
+
+		}
 		return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
 	}
 
@@ -67,10 +88,23 @@ public class GlobalAPIException extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<ErrorDetails> handleAccessDeniedException(AccessDeniedException exception,
 			WebRequest webRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter), exception.getMessage(),
-				webRequest.getDescription(false));
-		User user = this.handleLoggerError(request, response, true);
-		loggerService.logError(request, exception.getMessage(), "FAILED", user, user.getCompany());
+		int beginIndex = 0; // Calculate or obtain dynamically
+		int endIndex = exception.getMessage().length();
+		ErrorDetails errorDetails = null;
+		User user = this.handleLoggerError(request, response, false);
+		if (endIndex > 255) {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					exception.getMessage().substring(beginIndex, 254), webRequest.getDescription(false));
+			loggerService.logError(request, exception.getMessage().substring(0, 255), "FAILED", user,
+					user.getCompany());
+
+		} else {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					exception.getMessage().substring(beginIndex, endIndex), webRequest.getDescription(false));
+			loggerService.logError(request, exception.getMessage().substring(0, endIndex), "FAILED", user,
+					user.getCompany());
+
+		}
 		return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
 	}
 
@@ -78,10 +112,23 @@ public class GlobalAPIException extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(AppGlobalException.class)
 	public ResponseEntity<ErrorDetails> handleBlogAPIException(AppGlobalException exception, WebRequest webRequest,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter), exception.getMessage(),
-				webRequest.getDescription(false));
+		int beginIndex = 0; // Calculate or obtain dynamically
+		int endIndex = exception.getMessage().length();
+		ErrorDetails errorDetails = null;
 		User user = this.handleLoggerError(request, response, false);
-		loggerService.logError(request, exception.getMessage(), "FAILED", user, user.getCompany());
+		if (endIndex > 255) {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					exception.getMessage().substring(beginIndex, 254), webRequest.getDescription(false));
+			loggerService.logError(request, exception.getMessage().substring(0, 255), "FAILED", user,
+					user.getCompany());
+
+		} else {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					exception.getMessage().substring(beginIndex, endIndex), webRequest.getDescription(false));
+			loggerService.logError(request, exception.getMessage().substring(0, endIndex), "FAILED", user,
+					user.getCompany());
+
+		}
 		return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
 	}
 
@@ -89,10 +136,23 @@ public class GlobalAPIException extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(UsernameNotFoundException.class)
 	public ResponseEntity<ErrorDetails> handleAccessDenieddException(UsernameNotFoundException exception,
 			WebRequest webRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter), exception.getMessage(),
-				webRequest.getDescription(false));
-		User user = this.handleLoggerError(request, response, true);
-		loggerService.logError(request, exception.getMessage(), "FAILED", user, user.getCompany());
+		int beginIndex = 0; // Calculate or obtain dynamically
+		int endIndex = exception.getMessage().length();
+		ErrorDetails errorDetails = null;
+		User user = this.handleLoggerError(request, response, false);
+		if (endIndex > 255) {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					exception.getMessage().substring(beginIndex, 254), webRequest.getDescription(false));
+			loggerService.logError(request, exception.getMessage().substring(0, 255), "FAILED", user,
+					user.getCompany());
+
+		} else {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					exception.getMessage().substring(beginIndex, endIndex), webRequest.getDescription(false));
+			loggerService.logError(request, exception.getMessage().substring(0, endIndex), "FAILED", user,
+					user.getCompany());
+
+		}
 		return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
 	}
 
@@ -100,10 +160,23 @@ public class GlobalAPIException extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorDetails> handleGlobalException(Exception exception, WebRequest webRequest,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter), exception.getMessage(),
-				webRequest.getDescription(false));
-		User user = this.handleLoggerError(request, response, true);
-		loggerService.logError(request, exception.getMessage(), "FAILED", user, user.getCompany());
+		int beginIndex = 0; // Calculate or obtain dynamically
+		int endIndex = exception.getMessage().length();
+		ErrorDetails errorDetails = null;
+		User user = this.handleLoggerError(request, response, false);
+		if (endIndex > 255) {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					exception.getMessage().substring(beginIndex, 254), webRequest.getDescription(false));
+			loggerService.logError(request, exception.getMessage().substring(0, 255), "FAILED", user,
+					user.getCompany());
+
+		} else {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					exception.getMessage().substring(beginIndex, endIndex), webRequest.getDescription(false));
+			loggerService.logError(request, exception.getMessage().substring(0, endIndex), "FAILED", user,
+					user.getCompany());
+
+		}
 		return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
@@ -111,10 +184,23 @@ public class GlobalAPIException extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(BadCredentialsException.class)
 	public ResponseEntity<ErrorDetails> handleAccessDeniedException(BadCredentialsException exception,
 			WebRequest webRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter), "User not found",
-				webRequest.getDescription(false));
-		User user = this.handleLoggerError(request, response, true);
-		loggerService.logError(request, exception.getMessage(), "FAILED", user, user.getCompany());
+		int beginIndex = 0; // Calculate or obtain dynamically
+		int endIndex = exception.getMessage().length();
+		ErrorDetails errorDetails = null;
+		User user = this.handleLoggerError(request, response, false);
+		if (endIndex > 255) {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					exception.getMessage().substring(beginIndex, 254), webRequest.getDescription(false));
+			loggerService.logError(request, exception.getMessage().substring(0, 255), "FAILED", user,
+					user.getCompany());
+
+		} else {
+			errorDetails = new ErrorDetails(LocalDateTime.now().format(formatter),
+					exception.getMessage().substring(beginIndex, endIndex), webRequest.getDescription(false));
+			loggerService.logError(request, exception.getMessage().substring(0, endIndex), "FAILED", user,
+					user.getCompany());
+
+		}
 		return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
 	}
 
@@ -124,8 +210,16 @@ public class GlobalAPIException extends ResponseEntityExceptionHandler {
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		Map<String, String> errors = new HashMap<>();
 		ex.getBindingResult().getAllErrors().forEach((error) -> {
+			int beginIndex = 0; // Calculate or obtain dynamically
+			int endIndex = ex.getMessage().length();
 			String fieldName = ((FieldError) error).getField();
-			String message = error.getDefaultMessage();
+			String message = null;
+			if (endIndex > 255) {
+				message = error.getDefaultMessage().substring(beginIndex, 254);
+				;
+			} else {
+				message = error.getDefaultMessage();
+			}
 			errors.put(fieldName, message);
 		});
 		errors.put("timestamp", LocalDateTime.now().format(formatter));
@@ -136,7 +230,14 @@ public class GlobalAPIException extends ResponseEntityExceptionHandler {
 			String endpoint = httpServletRequest.getRequestURI();
 			errors.put("endpoint", endpoint);
 			User user = this.handleLoggerError(httpServletRequest, httpServletResponse, true);
-			loggerService.logError(httpServletRequest, ex.getMessage(), "FAILED", user, user.getCompany());
+			if (ex.getMessage().length() > 255) {
+				loggerService.logError(httpServletRequest, ex.getMessage().substring(0, 255), "FAILED", user,
+						user.getCompany());
+			} else {
+				loggerService.logError(httpServletRequest, ex.getMessage().substring(0, ex.getMessage().length()),
+						"FAILED", user, user.getCompany());
+			}
+
 		}
 		return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
 	}
@@ -155,10 +256,24 @@ public class GlobalAPIException extends ResponseEntityExceptionHandler {
 			errors.put("endpoint", endpoint);
 
 			User user = this.handleLoggerError(httpServletRequest, httpServletResponse, true);
-			loggerService.logError(httpServletRequest, ex.getMessage(), "FAILED", user, user.getCompany());
+			if (ex.getMessage().length() > 255) {
+				loggerService.logError(httpServletRequest, ex.getMessage().substring(0, 255), "FAILED", user,
+						user.getCompany());
+
+			} else {
+				loggerService.logError(httpServletRequest, ex.getMessage().substring(0, ex.getMessage().length()),
+						"FAILED", user, user.getCompany());
+			}
 
 		}
-		errors.put("messsage", ex.getMessage());
+		if (ex.getMessage().length() > 255) {
+			errors.put("messsage", ex.getMessage().substring(0, 255));
+
+		} else {
+			errors.put("messsage", ex.getMessage().substring(0, ex.getMessage().length()));
+
+		}
+		errors.put("messsage", ex.getMessage().substring(0, 255));
 		errors.put("timestamp", LocalDateTime.now().format(formatter));
 
 		return new ResponseEntity<>(errors, status);

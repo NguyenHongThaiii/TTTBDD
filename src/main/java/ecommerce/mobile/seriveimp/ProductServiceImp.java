@@ -92,10 +92,12 @@ public class ProductServiceImp implements ProductService {
 
 			listImages.forEach(image -> productDto.getListImage().add(image.getImage()));
 			productDto.setNameCompany(company.getName());
+			productCreateDto.setListImageFile(null);
 			loggerService.logInfor(request, "Create Product", "SUCCESSFULLY",
 					objectMapper.writeValueAsString(productCreateDto));
 			return productDto;
 		} catch (Exception e) {
+			productCreateDto.setListImageFile(null);
 			loggerService.logError(request, "Create Product", "FAILED",
 					objectMapper.writeValueAsString(productCreateDto));
 			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -153,10 +155,12 @@ public class ProductServiceImp implements ProductService {
 			if (product.getImages() != null)
 				product.getImages().forEach(image -> productDto.getListImage().add(image.getImage()));
 			productDto.setNameCompany(product.getCompany().getName());
+			productUpdateDto.setListImageFile(null);
 			loggerService.logInfor(request, "Update Product", "SUCCESSFULLY",
 					objectMapper.writeValueAsString(productUpdateDto));
 			return productDto;
 		} catch (Exception e) {
+			productUpdateDto.setListImageFile(null);
 			loggerService.logError(request, "Update Product", "FAILED",
 					objectMapper.writeValueAsString(productUpdateDto));
 			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

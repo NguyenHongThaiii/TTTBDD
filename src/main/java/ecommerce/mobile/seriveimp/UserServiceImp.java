@@ -29,6 +29,7 @@ import ecommerce.mobile.entity.Role;
 import ecommerce.mobile.entity.User;
 import ecommerce.mobile.exception.AppGlobalException;
 import ecommerce.mobile.exception.ResourceNotFoundException;
+import ecommerce.mobile.payload.ChangePassworDTO;
 import ecommerce.mobile.payload.LoginDTO;
 import ecommerce.mobile.payload.RegisterDTO;
 import ecommerce.mobile.payload.ResetPasswordDTO;
@@ -183,6 +184,7 @@ public class UserServiceImp implements UserService {
 			cookie.setMaxAge(7 * 24 * 60 * 999999999);
 			cookie.setPath("/");
 			response.addCookie(cookie);
+			loginDto.setPassword(null);
 			loggerService.logInfor(request, "Login User", "SUCCESSFULLY", objectMapper.writeValueAsString(loginDto),
 					user, user.getCompany());
 			return userDto;
@@ -233,6 +235,7 @@ public class UserServiceImp implements UserService {
 			user.getRole().forEach(role -> {
 				reg.getRoles().add(role.getName());
 			});
+			registerDto.setPassword(null);
 			loggerService.logInfor(request, "Register User", "SUCCESSFULLY",
 					objectMapper.writeValueAsString(registerDto), user, user.getCompany());
 			return reg;
@@ -320,13 +323,18 @@ public class UserServiceImp implements UserService {
 		this.validateOtp(otpEmail, validateOtpDto.getOtp());
 		otpService.clearCache("otpCache", validateOtpDto.getEmail().toLowerCase());
 		otpService.generateAndStoreAnotherData(validateOtpDto.getEmail().toLowerCase());
+		System.out.println("validateOtpDto.getEmail(): " + validateOtpDto.getEmail().toLowerCase());
 	}
 
 	@Override
 	public void handleResetPassword(ResetPasswordDTO reset) {
-		User user = userRepository.findByEmail(reset.getEmail())
+		User user = userRepository.findByEmail(reset.getEmail().toLowerCase())
 				.orElseThrow(() -> new ResourceNotFoundException("User", "email", reset.getEmail()));
 		String otpEmail = otpService.getOtpBySession(user.getEmail().toLowerCase());
+		System.out.println("Email: " + user.getEmail().toLowerCase());
+		System.out.println("ResetEmail: " + reset.getEmail().toLowerCase());
+		System.out.println("otpEmail: " + otpEmail);
+		System.out.println(user.getEmail().toLowerCase().equals(reset.getEmail().toLowerCase()));
 		if (otpEmail == null)
 			throw new AppGlobalException(HttpStatus.BAD_REQUEST, "Time is expired");
 
@@ -336,7 +344,9 @@ public class UserServiceImp implements UserService {
 		otpService.clearCache("session", reset.getEmail());
 		String passwordEncryt = passwordEncoder.encode(reset.getPassword());
 		user.setPassword(passwordEncryt);
+
 		userRepository.save(user);
+
 	}
 
 	@Override
@@ -396,11 +406,14 @@ public class UserServiceImp implements UserService {
 			if (userCurrent.getAvatar() != null)
 				res.setImage(userCurrent.getAvatar().getImage());
 			userCurrent.getRole().forEach(role -> res.getRoles().add(role.getName()));
-
+			userUpdateDto.setAvartar(null);
+			userUpdateDto.setWallpaper(null);
 			loggerService.logInfor(request, "Update User", "SUCCESSFULLY",
 					objectMapper.writeValueAsString(userUpdateDto));
 			return res;
 		} catch (Exception e) {
+			userUpdateDto.setAvartar(null);
+			userUpdateDto.setWallpaper(null);
 			loggerService.logError(request, "Update User", "FAILED", objectMapper.writeValueAsString(userUpdateDto));
 			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 
@@ -422,15 +435,15 @@ public class UserServiceImp implements UserService {
 	}
 
 	@Override
-	public void changePassword(ResetPasswordDTO reset, HttpServletRequest request) {
+	public void changePassword(ChangePassworDTO reset, HttpServletRequest request) {
 		try {
 			User user = userRepository.findByEmail(reset.getEmail())
 					.orElseThrow(() -> new ResourceNotFoundException("User", "email", reset.getEmail()));
-			if (!passwordEncoder.matches(reset.getOldPassword(), user.getPassword()))
-				throw new AppGlobalException(HttpStatus.BAD_REQUEST, "Password old not correct!");
 
 			if (!reset.getPassword().equals(reset.getRetypePassword()))
 				throw new AppGlobalException(HttpStatus.BAD_REQUEST, "Password and retype password not matches!");
+			if (!passwordEncoder.matches(reset.getOldPassword(), user.getPassword()))
+				throw new AppGlobalException(HttpStatus.BAD_REQUEST, "Old password is not correct!");
 
 			user.setPassword(passwordEncoder.encode(reset.getPassword()));
 

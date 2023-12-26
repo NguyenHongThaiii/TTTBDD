@@ -3,6 +3,7 @@ package ecommerce.mobile.service;
 import java.io.IOException;
 import java.util.List;
 
+import ecommerce.mobile.payload.ChangePassworDTO;
 import ecommerce.mobile.payload.LoginDTO;
 import ecommerce.mobile.payload.RegisterDTO;
 import ecommerce.mobile.payload.ResetPasswordDTO;
@@ -33,8 +34,6 @@ public interface UserService {
 
 	UserDTO getUserByEmail(String email);
 
-	void changePassword(ResetPasswordDTO reset, HttpServletRequest request);
-
 	void handleResetPassword(ResetPasswordDTO reset);
 
 	void deleteUserById(Integer id, HttpServletRequest request) throws IOException;
@@ -42,5 +41,7 @@ public interface UserService {
 	List<UserDTO> getListUser(int limit, int page, String name, String email, String phone, String gender, String role,
 			String companyName, Integer status, String createdAt, String updatedAt, String sortBy,
 			HttpServletRequest request);
+
+	void changePassword(ChangePassworDTO reset, HttpServletRequest request);
 
 }

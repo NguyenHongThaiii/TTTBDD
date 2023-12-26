@@ -1,6 +1,7 @@
 package ecommerce.mobile.entity;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
@@ -16,6 +17,7 @@ public class Logger extends BaseEntity {
 	private String agent;
 	private String result;
 	private String params;
+	@Column(length = 500)
 	private String body;
 	private String endpoint;
 

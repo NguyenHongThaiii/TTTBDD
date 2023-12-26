@@ -24,8 +24,8 @@ public class Invoice extends BaseEntity {
 	private String key;
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "guest_id")
-	private User guest;
+	@JoinColumn(name = "customer_id")
+	private Customer customer;
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id")
 	private User user;
@@ -38,24 +38,26 @@ public class Invoice extends BaseEntity {
 
 	private Float tax;
 	private Double totalPrice;
+	private String address;
 
 	public Invoice() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Invoice(String note, Boolean isPaid, String method, String key, User guest, User user, Image qrImage,
-			List<Order> orders, Float tax, Double totalPrice) {
+	public Invoice(String note, Boolean isPaid, String method, String key, Customer customer, User user, Image qrImage,
+			List<Order> orders, Float tax, Double totalPrice, String address) {
 		super();
 		this.note = note;
 		this.isPaid = isPaid;
 		this.method = method;
 		this.key = key;
-		this.guest = guest;
+		this.customer = customer;
 		this.user = user;
 		this.qrImage = qrImage;
 		this.orders = orders;
 		this.tax = tax;
 		this.totalPrice = totalPrice;
+		this.address = address;
 	}
 
 	public String getNote() {
@@ -90,12 +92,12 @@ public class Invoice extends BaseEntity {
 		this.key = key;
 	}
 
-	public User getGuest() {
-		return guest;
+	public Customer getCustomer() {
+		return customer;
 	}
 
-	public void setGuest(User guest) {
-		this.guest = guest;
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
 	public User getUser() {
@@ -136,6 +138,14 @@ public class Invoice extends BaseEntity {
 
 	public void setTotalPrice(Double totalPrice) {
 		this.totalPrice = totalPrice;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 }
