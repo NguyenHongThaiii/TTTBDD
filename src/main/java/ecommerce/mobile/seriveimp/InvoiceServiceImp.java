@@ -96,7 +96,8 @@ public class InvoiceServiceImp implements InvoiceService {
 	@Transactional
 	@Override
 	public InvoiceDTO createInvoice(InvoiceCreateDTO invoiceCreateDto, HttpServletRequest request) {
-		String url = "";
+		String url = null;
+		InvoiceDTO invoiceDto = null;
 		try {
 			User user = userRepository.findByEmail(invoiceCreateDto.getEmailUser())
 					.orElseThrow(() -> new ResourceNotFoundException("User", "email", invoiceCreateDto.getEmailUser()));
@@ -104,8 +105,8 @@ public class InvoiceServiceImp implements InvoiceService {
 					() -> new ResourceNotFoundException("Customer", "phone", invoiceCreateDto.getPhoneGuest()));
 			Company company = companyRepository.findByName(invoiceCreateDto.getCompanyName()).orElseThrow(
 					() -> new ResourceNotFoundException("Company", "name", invoiceCreateDto.getCompanyName()));
-			url = cloudinaryService.uploadImage(invoiceCreateDto.getQrImage(), path, "image");
-
+			if (invoiceRepository.existsByQrKey(invoiceCreateDto.getKey()))
+				throw new AppGlobalException(HttpStatus.BAD_REQUEST, "Key's already exists");
 			Invoice invoice = new Invoice();
 			Integer totalQuantity = 0;
 			invoice.setCompany(company);
@@ -121,18 +122,18 @@ public class InvoiceServiceImp implements InvoiceService {
 			invoice.setAddress(invoiceCreateDto.getAddress());
 			invoiceRepository.save(invoice);
 
-			Image qr = new Image();
-			qr.setImage(url);
-			qr.setCompany(company);
-			qr.setStatus(1);
-			qr.setInvoice(invoice);
-			imageRepository.save(qr);
+			url = cloudinaryService.uploadImage(invoiceCreateDto.getImage(), path, "image");
+			Image image = new Image();
+			image.setImage(url);
+			image.setInvoice(invoice);
+			imageRepository.save(image);
+
 			List<OrderCreateDTO> orderDtos = objectMapper.readValue(invoiceCreateDto.getListOrders(),
 					new TypeReference<List<OrderCreateDTO>>() {
 					});
 			List<Order> listOrder = new ArrayList<>();
 			List<OrderDTO> listOrderDto = new ArrayList<>();
-			InvoiceDTO invoiceDto = MapperUtils.mapToDTO(invoice, InvoiceDTO.class);
+			invoiceDto = MapperUtils.mapToDTO(invoice, InvoiceDTO.class);
 
 			for (OrderCreateDTO orderDto : orderDtos) {
 				Product product = productRepository.findByIdAndCompanyId(orderDto.getProductId(), company.getId())
@@ -166,51 +167,39 @@ public class InvoiceServiceImp implements InvoiceService {
 			invoiceDto.setQuantity(totalQuantity);
 			invoiceDto.setEmailUser(user.getEmail());
 			invoiceDto.setEmailGuest(customer.getEmail());
-			invoiceDto.setQrImage(url);
 			invoiceDto.setKey(invoice.getKey());
-			invoiceCreateDto.setQrImage(null);
+			invoiceDto.setImage(url);
 			loggerService.logInfor(request, "Create Invoice", "SUCCESSFULLY",
 					objectMapper.writeValueAsString(invoiceCreateDto));
 			return invoiceDto;
 
 		} catch (JsonMappingException e) {
 
-			e.printStackTrace();
 			try {
-				invoiceCreateDto.setQrImage(null);
 				cloudinaryService.removeImageFromCloudinary(url, path);
 				loggerService.logError(request, "Create Invoice", "FAILED",
 						objectMapper.writeValueAsString(invoiceCreateDto));
+				throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 
 			} catch (IOException e1) {
-
-				throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 			}
-			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR,
-					"Error creating the invoice JsonMappingException");
-		} catch (JsonProcessingException e) {
 
-			e.printStackTrace();
+		} catch (JsonProcessingException e) {
 			try {
-				invoiceCreateDto.setQrImage(null);
 				cloudinaryService.removeImageFromCloudinary(url, path);
 				loggerService.logError(request, "Create Invoice", "FAILED",
 						objectMapper.writeValueAsString(invoiceCreateDto));
 				throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 
 			} catch (IOException e1) {
-
 				e1.printStackTrace();
-
 			}
 			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR,
 					"Error creating the invoice JsonProcessingException");
 
 		} catch (IOException e) {
 
-			e.printStackTrace();
 			try {
-				invoiceCreateDto.setQrImage(null);
 				cloudinaryService.removeImageFromCloudinary(url, path);
 				loggerService.logError(request, "Create Invoice", "FAILED",
 						objectMapper.writeValueAsString(invoiceCreateDto));
@@ -218,11 +207,11 @@ public class InvoiceServiceImp implements InvoiceService {
 
 			} catch (IOException e1) {
 
-				e1.printStackTrace();
 			}
 			throw new AppGlobalException(HttpStatus.INTERNAL_SERVER_ERROR, "Error creating the invoice IOException");
 
 		}
+		return invoiceDto;
 
 	}
 
@@ -298,7 +287,6 @@ public class InvoiceServiceImp implements InvoiceService {
 			invoiceDto.setQuantity(totalQuantity);
 			invoiceDto.setEmailUser(invoice.getUser().getEmail());
 			invoiceDto.setEmailGuest(invoice.getCustomer().getEmail());
-			invoiceDto.setQrImage(invoice.getQrImage().getImage());
 			invoiceDto.setKey(invoice.getKey());
 			invoice.setOrders(listOrder);
 			invoiceRepository.save(invoice);
@@ -363,7 +351,6 @@ public class InvoiceServiceImp implements InvoiceService {
 		invoiceDto.setEmailUser(invoice.getUser().getEmail());
 		invoiceDto.setEmailGuest(invoice.getCustomer().getEmail());
 		invoiceDto.setQuantity(totalQuantity);
-		invoiceDto.setQrImage(invoice.getQrImage().getImage());
 		invoiceDto.setKey(invoice.getKey());
 		return invoiceDto;
 	}
@@ -422,7 +409,6 @@ public class InvoiceServiceImp implements InvoiceService {
 			invoiceDto.setEmailUser(invoice.getUser().getEmail());
 			invoiceDto.setEmailGuest(invoice.getCustomer().getEmail());
 			invoiceDto.setQuantity(totalQuantity);
-			invoiceDto.setQrImage(invoice.getQrImage().getImage());
 			invoiceDto.setKey(invoice.getKey());
 			return invoiceDto;
 		}).collect(Collectors.toList());
@@ -476,7 +462,6 @@ public class InvoiceServiceImp implements InvoiceService {
 		invoiceDto.setEmailUser(invoice.getUser().getEmail());
 		invoiceDto.setEmailGuest(invoice.getCustomer().getEmail());
 		invoiceDto.setQuantity(totalQuantity);
-		invoiceDto.setQrImage(invoice.getQrImage().getImage());
 		invoiceDto.setKey(invoice.getKey());
 		return invoiceDto;
 	}

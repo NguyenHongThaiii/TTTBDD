@@ -16,6 +16,7 @@ public class Logger extends BaseEntity {
 	private String message;
 	private String agent;
 	private String result;
+	@Column(length = 500)
 	private String params;
 	@Column(length = 500)
 	private String body;

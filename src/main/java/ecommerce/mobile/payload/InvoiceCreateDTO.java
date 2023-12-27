@@ -32,10 +32,6 @@ public class InvoiceCreateDTO {
 	@Schema(description = "Key QR")
 	@NotNull
 	private String key;
-	@Schema(description = "Image QR Invoice")
-	@NotNull
-	@ValidFile
-	private MultipartFile qrImage;
 	@Schema(description = "Tax Invoice")
 	@NotNull
 	private Float tax;
@@ -44,6 +40,9 @@ public class InvoiceCreateDTO {
 	private Double totalPrice;
 	@Schema(description = "Address Invoice")
 	private String address;
+	@Schema(description = "Image Invoice")
+	@NotNull
+	private MultipartFile image;
 
 	public InvoiceCreateDTO() {
 		// TODO Auto-generated constructor stub
@@ -51,8 +50,7 @@ public class InvoiceCreateDTO {
 
 	public InvoiceCreateDTO(@NotNull String emailUser, @NotNull String phoneGuest, @NotNull String note,
 			@NotNull Boolean isPaid, @NotNull String listOrders, @NotNull String method, @NotNull String companyName,
-			@NotNull String key, @NotNull MultipartFile qrImage, @NotNull Float tax, @NotNull Double totalPrice,
-			String address) {
+			@NotNull String key, @NotNull Float tax, @NotNull Double totalPrice, String address, MultipartFile image) {
 		super();
 		this.emailUser = emailUser;
 		this.phoneGuest = phoneGuest;
@@ -62,10 +60,10 @@ public class InvoiceCreateDTO {
 		this.method = method;
 		this.companyName = companyName;
 		this.key = key;
-		this.qrImage = qrImage;
 		this.tax = tax;
 		this.totalPrice = totalPrice;
 		this.address = address;
+		this.image = image;
 	}
 
 	public String getEmailUser() {
@@ -132,14 +130,6 @@ public class InvoiceCreateDTO {
 		this.key = key;
 	}
 
-	public MultipartFile getQrImage() {
-		return qrImage;
-	}
-
-	public void setQrImage(MultipartFile qrImage) {
-		this.qrImage = qrImage;
-	}
-
 	public Float getTax() {
 		return tax;
 	}
@@ -162,6 +152,14 @@ public class InvoiceCreateDTO {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public MultipartFile getImage() {
+		return image;
+	}
+
+	public void setImage(MultipartFile image) {
+		this.image = image;
 	}
 
 }

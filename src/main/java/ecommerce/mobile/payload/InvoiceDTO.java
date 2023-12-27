@@ -33,14 +33,14 @@ public class InvoiceDTO {
 	private String method;
 	@Schema(description = "Key Image QR")
 	private String key;
-	@Schema(description = "Image QR")
-	private String qrImage;
 	@Schema(description = "Tax Invoice")
 	private Float tax;
 	@Schema(description = "Total Price")
 	private Double totalPrice;
 	@Schema(description = "Address Invoice")
 	private String address;
+	@Schema(description = "Image Invoice")
+	private String image;
 
 	public InvoiceDTO() {
 		// TODO Auto-generated constructor stub
@@ -48,7 +48,7 @@ public class InvoiceDTO {
 
 	public InvoiceDTO(Integer id, Integer status, String createdAt, String updatedAt, Integer quantity, String note,
 			Boolean isPaid, List<OrderDTO> orders, String emailUser, String emailGuest, String companyName,
-			String method, String key, String qrImage, Float tax, Double totalPrice, String address) {
+			String method, String key, Float tax, Double totalPrice, String address, String image) {
 		super();
 		this.id = id;
 		this.status = status;
@@ -63,10 +63,10 @@ public class InvoiceDTO {
 		this.companyName = companyName;
 		this.method = method;
 		this.key = key;
-		this.qrImage = qrImage;
 		this.tax = tax;
 		this.totalPrice = totalPrice;
 		this.address = address;
+		this.image = image;
 	}
 
 	public Integer getId() {
@@ -173,14 +173,6 @@ public class InvoiceDTO {
 		this.key = key;
 	}
 
-	public String getQrImage() {
-		return qrImage;
-	}
-
-	public void setQrImage(String qrImage) {
-		this.qrImage = qrImage;
-	}
-
 	public Float getTax() {
 		return tax;
 	}
@@ -203,6 +195,14 @@ public class InvoiceDTO {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
 	}
 
 }

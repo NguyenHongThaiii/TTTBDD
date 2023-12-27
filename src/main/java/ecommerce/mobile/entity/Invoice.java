@@ -3,6 +3,8 @@ package ecommerce.mobile.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,9 +32,6 @@ public class Invoice extends BaseEntity {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@OneToOne(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private Image qrImage;
-
 	@OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
 	private List<Order> orders = new ArrayList<>();
 
@@ -40,12 +39,15 @@ public class Invoice extends BaseEntity {
 	private Double totalPrice;
 	private String address;
 
+	@OneToOne(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private Image image;
+
 	public Invoice() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Invoice(String note, Boolean isPaid, String method, String key, Customer customer, User user, Image qrImage,
-			List<Order> orders, Float tax, Double totalPrice, String address) {
+	public Invoice(String note, Boolean isPaid, String method, String key, Customer customer, User user,
+			List<Order> orders, Float tax, Double totalPrice, String address, Image image) {
 		super();
 		this.note = note;
 		this.isPaid = isPaid;
@@ -53,11 +55,11 @@ public class Invoice extends BaseEntity {
 		this.key = key;
 		this.customer = customer;
 		this.user = user;
-		this.qrImage = qrImage;
 		this.orders = orders;
 		this.tax = tax;
 		this.totalPrice = totalPrice;
 		this.address = address;
+		this.image = image;
 	}
 
 	public String getNote() {
@@ -108,14 +110,6 @@ public class Invoice extends BaseEntity {
 		this.user = user;
 	}
 
-	public Image getQrImage() {
-		return qrImage;
-	}
-
-	public void setQrImage(Image qrImage) {
-		this.qrImage = qrImage;
-	}
-
 	public List<Order> getOrders() {
 		return orders;
 	}
@@ -146,6 +140,14 @@ public class Invoice extends BaseEntity {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public Image getImage() {
+		return image;
+	}
+
+	public void setImage(Image image) {
+		this.image = image;
 	}
 
 }

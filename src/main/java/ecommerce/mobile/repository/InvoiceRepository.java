@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import ecommerce.mobile.entity.Invoice;
 import ecommerce.mobile.seriveimp.UserServiceImp;
@@ -83,4 +84,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
 
 	Optional<Invoice> findByKey(String key);
 
+	@Query("SELECT CASE WHEN COUNT(i) > 0 THEN true ELSE false END FROM Invoice i WHERE i.key = :key")
+	Boolean existsByQrKey(@Param("key") String key);
 }
